@@ -44,12 +44,14 @@ public class Connection {
             this.connection = connection;
         }
 
-        public void sendBasse64Image(String imageBase64String) {
-            socket.emit("stream", imageBase64String);
+        public void emit(String event, Object obj) {
+            socket.emit(event, obj);
         }
-
-        public void requestStatus() {
-            socket.emit("requestStatus", Main.getMain().getID());
+        public void emitString(String event, String message) {
+            socket.emit(event, message);
+        }
+        public void emitInt(String event, int number) {
+            socket.emit(event, number);
         }
     }
 
@@ -63,7 +65,6 @@ public class Connection {
                 @Override
                 public void call(Object... args) {
                     System.out.println("Connected");
-                    socket.emit("username", System.getProperty("user.name"));
                 }
             }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
                 @Override
@@ -74,6 +75,12 @@ public class Connection {
                 @Override
                 public void call(Object... args) {
                     String id = (String) args[0];
+                }
+            }).on("stream", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    String data = (String) args[0];
+                    Main.getMain().updateFrame(data);
                 }
             });
         }
